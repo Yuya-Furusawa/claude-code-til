@@ -1,0 +1,24 @@
+{
+  "name": "claude-code-learnings",
+  "version": "0.1.0",
+  "description": "Auto-record Claude Code sessions and generate daily learning summaries",
+  "type": "module",
+  "scripts": {
+    "setup": "node setup.mjs",
+    "uninstall": "node uninstall.mjs"
+  },
+  "keywords": [
+    "claude-code",
+    "learning",
+    "til",
+    "obsidian",
+    "hooks"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0"
+  }
+}
