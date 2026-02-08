@@ -30,7 +30,7 @@ const SCRIPTS = [
 ];
 
 const COMMANDS = [
-  'commands/today-learnings.md',
+  'commands/til.md',
 ];
 
 // --- Helpers ---
@@ -146,7 +146,7 @@ function resolveNodeModules() {
 // --- Main ---
 
 console.log('');
-console.log('🚀 Claude Code Daily Learnings - Setup');
+console.log('🚀 Claude Code TIL - Setup');
 console.log('=======================================');
 console.log('');
 
@@ -162,7 +162,7 @@ log('🎉', 'セットアップ完了！');
 console.log('');
 console.log('  使い方:');
 console.log('  1. Claude Codeを普通に使う（自動的にセッションが記録されます）');
-console.log('  2. 1日の終わりに Claude Code 内で /today-learnings を実行');
+console.log('  2. 1日の終わりに Claude Code 内で /til を実行');
 console.log('');
 console.log('  Obsidian連携:');
 console.log('  export OBSIDIAN_VAULT_PATH="$HOME/path/to/vault"');

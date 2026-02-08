@@ -1,4 +1,4 @@
-# 📚 Claude Code Daily Learnings
+# 📚 Claude Code TIL(Today I Learned)
 
 Claude Codeでの日々のやり取りを自動記録し、1日の終わりに「今日新しく学んだこと」をまとめるツール。
 
@@ -8,7 +8,7 @@ Claude Codeでの日々のやり取りを自動記録し、1日の終わりに�
 [日中] Claude Codeを普通に使う
   ↓ SessionEnd Hook が自動でセッション情報をSQLiteに記録
 
-[1日の終わり] /today-learnings を実行
+[1日の終わり] /til を実行
   ↓ 今日のtranscriptを抽出
   ↓ claude -p でサマリー生成（サブスク内で完結・APIコスト不要）
   ↓ Obsidian Vault に Markdown 出力
@@ -19,19 +19,20 @@ Claude Codeでの日々のやり取りを自動記録し、1日の終わりに�
 - **自動記録**: SessionEnd hookでセッション終了時に自動的にtranscriptパスを保存
 - **APIコスト不要**: `claude -p` を使うためClaude Codeサブスク内で完結
 - **Obsidian連携**: Daily Learningsフォルダに日付別Markdownを自動出力
-- **カスタムコマンド**: Claude Code内で `/today-learnings` と打つだけで実行
+- **カスタムコマンド**: Claude Code内で `/til` と打つだけで実行
 
 ## Requirements
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (CLI)
 - Node.js >= 18
 - npm
+- Obsidian
 
 ## Installation
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/claude-code-learnings.git
-cd claude-code-learnings
+git clone https://github.com/YOUR_USERNAME/claude-code-til.git
+cd claude-code-til
 npm install
 node setup.mjs
 ```
@@ -63,7 +64,7 @@ export OBSIDIAN_VAULT_PATH="$HOME/Documents/Obsidian/MyVault"
 Claude Code内で以下のコマンドを実行:
 
 ```
-/today-learnings
+/til
 ```
 
 または、ターミナルから直接:
@@ -106,7 +107,7 @@ claude-code-learnings/
 │   ├── daily-learnings.sh # メイン: サマリー生成
 │   └── export-obsidian.mjs# Obsidianに出力
 ├── commands/
-│   └── today-learnings.md # カスタムslashコマンド
+│   └── til.md # カスタムslashコマンド
 └── prompt.txt             # サマリー生成用プロンプト
 ```
 
@@ -147,7 +148,7 @@ crontab -e
 ## Uninstall
 
 ```bash
-cd claude-code-learnings
+cd claude-code-til
 node uninstall.mjs
 ```
 

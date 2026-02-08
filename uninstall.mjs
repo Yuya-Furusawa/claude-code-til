@@ -86,7 +86,7 @@ async function main() {
   log('📄', 'スクリプトを削除しました');
 
   // 3. カスタムコマンドを削除
-  const commandPath = join(CLAUDE_DIR, 'commands', 'today-learnings.md');
+  const commandPath = join(CLAUDE_DIR, 'commands', 'til.md');
   if (existsSync(commandPath)) {
     unlinkSync(commandPath);
     log('⚡', 'カスタムコマンドを削除しました');
