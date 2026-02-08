@@ -22,7 +22,7 @@ EXTRACT_ARGS=("$@")
 
 # 日付の決定
 TODAY=$(date +%Y-%m-%d)
-for i in "${!EXTRACT_ARGS[@]}"; do
+if [ ${#EXTRACT_ARGS[@]} -gt 0 ]; then
   if [ "${EXTRACT_ARGS[$i]}" = "--date" ] && [ $((i + 1)) -lt ${#EXTRACT_ARGS[@]} ]; then
     TODAY="${EXTRACT_ARGS[$((i + 1))]}"
     break
@@ -34,7 +34,7 @@ OUTPUT="$LEARNINGS_DIR/$TODAY.md"
 mkdir -p "$LEARNINGS_DIR"
 
 echo "📖 セッションを抽出中..."
-EXTRACTED=$(node "$SCRIPTS_DIR/extract-today.mjs" "${EXTRACT_ARGS[@]}" 2>/dev/null || true)
+EXTRACTED=$(node "$SCRIPTS_DIR/extract-today.mjs" ${EXTRACT_ARGS[@]+"${EXTRACT_ARGS[@]}"} 2>/dev/null || true)
 
 if [ -z "$EXTRACTED" ] || echo "$EXTRACTED" | grep -q "セッションはありません" || echo "$EXTRACTED" | grep -q "データベースが見つかりません"; then
   echo "❌ 対象のセッションがありません。"
@@ -49,7 +49,7 @@ else
 fi
 
 echo "🤖 サマリーを生成中..."
-echo "$EXTRACTED" | claude -p "$PROMPT" --output-format text > "$OUTPUT"
+echo "$EXTRACTED" | claude -p "$PROMPT" --model claude-haiku-4-5-20251001 --output-format text > "$OUTPUT"
 
 echo "✅ サマリーを保存しました: $OUTPUT"
 
