@@ -85,18 +85,21 @@ function extractConversation(transcriptPath) {
       const entry = JSON.parse(line);
 
       // type ベースのフィルタリング
-      if (entry.type !== 'human' && entry.type !== 'assistant') {
+      if (entry.type !== 'user' && entry.type !== 'assistant') {
         continue;
       }
 
-      const role = entry.type === 'human' ? 'User' : 'Claude';
+      const role = entry.type === 'user' ? 'User' : 'Claude';
+
+      // メッセージ本体は entry.message.content に格納されている
+      const rawContent = entry.message?.content ?? entry.content;
 
       let content = '';
-      if (typeof entry.content === 'string') {
-        content = entry.content;
-      } else if (Array.isArray(entry.content)) {
+      if (typeof rawContent === 'string') {
+        content = rawContent;
+      } else if (Array.isArray(rawContent)) {
         // contentが配列の場合（text blockの配列）
-        content = entry.content
+        content = rawContent
           .map(block => {
             if (typeof block === 'string') return block;
             if (block.type === 'text') return block.text || '';
