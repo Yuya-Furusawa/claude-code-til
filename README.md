@@ -61,6 +61,15 @@ node setup.mjs
 export OBSIDIAN_VAULT_PATH="$HOME/Documents/Obsidian/MyVault"
 ```
 
+## Update
+
+install コマンドを再実行するだけで最新版に更新できます。
+カスタマイズした `prompt.txt` はそのまま保持されます。
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Yuya-Furusawa/claude-code-til/main/install.sh | bash
+```
+
 ## Usage
 
 ### 日常の使い方
