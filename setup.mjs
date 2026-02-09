@@ -56,6 +56,10 @@ function copyScripts() {
       : join(CLAUDE_DIR, file);
 
     mkdirSync(dirname(dest), { recursive: true });
+    if (file === 'prompt.txt' && existsSync(dest)) {
+      log('ℹ️', 'prompt.txt は既存のものを保持します');
+      continue;
+    }
     copyFileSync(src, dest);
   }
   log('📄', 'スクリプトをコピーしました');
