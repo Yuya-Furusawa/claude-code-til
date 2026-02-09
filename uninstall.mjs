@@ -34,7 +34,8 @@ async function main() {
   console.log('============================================');
   console.log('');
 
-  const ok = await confirm('アンインストールしますか？（SQLiteデータは保持されます）');
+  const skipConfirm = process.argv.includes('--yes') || process.argv.includes('-y');
+  const ok = skipConfirm || await confirm('アンインストールしますか？（SQLiteデータは保持されます）');
   if (!ok) {
     log('👋', 'キャンセルしました');
     process.exit(0);
