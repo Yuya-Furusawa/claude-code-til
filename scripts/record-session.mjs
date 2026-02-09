@@ -3,8 +3,8 @@
 /**
  * record-session.mjs
  *
- * SessionEnd hookから呼ばれ、セッション情報をSQLiteに記録する。
- * stdin から以下のようなJSONを受け取る:
+ * Called from the SessionEnd hook to record session info to SQLite.
+ * Receives the following JSON via stdin:
  * {
  *   "session_id": "abc123",
  *   "transcript_path": "/Users/.../.claude/projects/.../xxxx.jsonl",
@@ -19,7 +19,7 @@ import { homedir } from 'os';
 import { join } from 'path';
 import { createRequire } from 'module';
 
-// better-sqlite3 はネイティブモジュールなので、scripts/node_modules から解決
+// better-sqlite3 is a native module, so resolve from scripts/node_modules
 const require = createRequire(join(homedir(), '.claude', 'scripts', 'package.json'));
 const Database = require('better-sqlite3');
 
@@ -57,7 +57,7 @@ try {
 
   db.close();
 } catch (e) {
-  // hookのエラーはセッションに影響を与えないよう静かに終了
+  // Exit silently so hook errors don't affect the session
   console.error(`[record-session] ${e.message}`);
   process.exit(0);
 }

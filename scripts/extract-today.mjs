@@ -3,13 +3,14 @@
 /**
  * extract-today.mjs
  *
- * SQLiteから今日のセッションのtranscript_pathを取得し、
- * 各JSONLファイルからユーザーの質問とClaudeの回答を抽出してstdoutに出力する。
+ * Retrieves today's session transcript_paths from SQLite,
+ * extracts user questions and Claude's responses from each JSONL file,
+ * and outputs them to stdout.
  *
  * Usage:
- *   node extract-today.mjs           # 今日の未サマリー分を抽出
- *   node extract-today.mjs --all     # 今日の全セッション（サマリー済み含む）
- *   node extract-today.mjs --date 2025-02-08  # 特定日を抽出
+ *   node extract-today.mjs           # Extract today's unsummarized sessions
+ *   node extract-today.mjs --all     # Extract all of today's sessions (including summarized)
+ *   node extract-today.mjs --date 2025-02-08  # Extract sessions for a specific date
  */
 
 import { readFileSync, existsSync } from 'fs';
@@ -23,11 +24,11 @@ const Database = require('better-sqlite3');
 const DB_PATH = join(homedir(), '.claude', 'learnings', 'sessions.db');
 
 if (!existsSync(DB_PATH)) {
-  console.log('データベースが見つかりません。まだセッションが記録されていません。');
+  console.log('Database not found. No sessions have been recorded yet.');
   process.exit(0);
 }
 
-// CLI引数のパース
+// Parse CLI arguments
 const args = process.argv.slice(2);
 const includeAll = args.includes('--all');
 const dateIndex = args.indexOf('--date');
@@ -35,7 +36,7 @@ const targetDate = dateIndex !== -1 ? args[dateIndex + 1] : null;
 
 const db = new Database(DB_PATH, { readonly: true });
 
-// クエリの組み立て
+// Build query
 let query = 'SELECT * FROM sessions WHERE ';
 const params = [];
 
@@ -55,17 +56,17 @@ query += ' ORDER BY created_at ASC';
 const sessions = db.prepare(query).all(...params);
 
 if (sessions.length === 0) {
-  console.log('対象のセッションはありません。');
+  console.log('No matching sessions found.');
   process.exit(0);
 }
 
 /**
- * transcriptのJSONLからユーザーとアシスタントのやり取りを抽出する。
+ * Extract user and assistant interactions from a transcript JSONL file.
  *
- * NOTE: Claude Codeのtranscriptフォーマットはバージョンによって異なる可能性があります。
- * 実際のJSONL構造に合わせてこの関数を調整してください。
+ * NOTE: The Claude Code transcript format may vary between versions.
+ * Adjust this function to match the actual JSONL structure.
  *
- * 想定されるJSONL行の形式:
+ * Expected JSONL line format:
  * {"type": "human", "content": "..."}
  * {"type": "assistant", "content": "..." | [...]}
  */
@@ -84,21 +85,21 @@ function extractConversation(transcriptPath) {
     try {
       const entry = JSON.parse(line);
 
-      // type ベースのフィルタリング
+      // Filter by type
       if (entry.type !== 'user' && entry.type !== 'assistant') {
         continue;
       }
 
       const role = entry.type === 'user' ? 'User' : 'Claude';
 
-      // メッセージ本体は entry.message.content に格納されている
+      // Message body is stored in entry.message.content
       const rawContent = entry.message?.content ?? entry.content;
 
       let content = '';
       if (typeof rawContent === 'string') {
         content = rawContent;
       } else if (Array.isArray(rawContent)) {
-        // contentが配列の場合（text blockの配列）
+        // When content is an array (array of text blocks)
         content = rawContent
           .map(block => {
             if (typeof block === 'string') return block;
@@ -111,10 +112,10 @@ function extractConversation(transcriptPath) {
           .join('\n');
       }
 
-      // 空のメッセージやtool_resultのみのメッセージはスキップ
+      // Skip empty messages or messages containing only tool_result
       if (!content || content.trim().length < 5) continue;
 
-      // 長すぎる回答はtruncate（サマリー生成時のトークン節約）
+      // Truncate overly long responses (to save tokens during summary generation)
       const MAX_LENGTH = 2000;
       if (content.length > MAX_LENGTH) {
         content = content.slice(0, MAX_LENGTH) + '\n... (truncated)';
@@ -122,7 +123,7 @@ function extractConversation(transcriptPath) {
 
       messages.push(`[${role}]: ${content}`);
     } catch {
-      // パースエラーは無視
+      // Ignore parse errors
       continue;
     }
   }
@@ -130,7 +131,7 @@ function extractConversation(transcriptPath) {
   return messages;
 }
 
-// 全セッションの会話を出力
+// Output conversations from all sessions
 let totalMessages = 0;
 
 for (const session of sessions) {
@@ -144,7 +145,7 @@ for (const session of sessions) {
 }
 
 if (totalMessages === 0) {
-  console.log('抽出可能なメッセージがありませんでした。');
+  console.log('No extractable messages found.');
 }
 
 db.close();

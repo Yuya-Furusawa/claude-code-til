@@ -43,13 +43,13 @@ function ensureDirs() {
   for (const dir of Object.values(DIRS)) {
     mkdirSync(dir, { recursive: true });
   }
-  log('📁', 'ディレクトリを作成しました');
+  log('📁', 'Created directories');
 }
 
 function copyScripts() {
   for (const file of SCRIPTS) {
     const src = join(__dirname, file);
-    // prompt.txt は scripts/ 内にコピー
+    // Copy prompt.txt into scripts/ directory
     const destDir = file === 'prompt.txt' ? DIRS.scripts : CLAUDE_DIR;
     const dest = file === 'prompt.txt'
       ? join(DIRS.scripts, 'prompt.txt')
@@ -57,17 +57,17 @@ function copyScripts() {
 
     mkdirSync(dirname(dest), { recursive: true });
     if (file === 'prompt.txt' && existsSync(dest)) {
-      log('ℹ️', 'prompt.txt は既存のものを保持します');
+      log('ℹ️', 'Keeping existing prompt.txt');
       continue;
     }
     copyFileSync(src, dest);
   }
-  log('📄', 'スクリプトをコピーしました');
+  log('📄', 'Copied scripts');
 
-  // シェルスクリプトに実行権限を付与
+  // Grant execute permission to shell script
   const shPath = join(DIRS.scripts, 'daily-learnings.sh');
   execSync(`chmod +x "${shPath}"`);
-  log('🔑', '実行権限を付与しました');
+  log('🔑', 'Granted execute permission');
 }
 
 function copyCommands() {
@@ -77,7 +77,7 @@ function copyCommands() {
     mkdirSync(dirname(dest), { recursive: true });
     copyFileSync(src, dest);
   }
-  log('⚡', 'カスタムコマンドを配置しました');
+  log('⚡', 'Placed custom commands');
 }
 
 function updateSettings() {
@@ -88,13 +88,13 @@ function updateSettings() {
     try {
       settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
     } catch {
-      log('⚠️', '既存のsettings.jsonのパースに失敗。バックアップして新規作成します');
+      log('⚠️', 'Failed to parse existing settings.json. Backing up and creating a new one');
       copyFileSync(settingsPath, settingsPath + '.backup');
       settings = {};
     }
   }
 
-  // hooks.SessionEnd を追加（既存を壊さない）
+  // Add hooks.SessionEnd (without breaking existing config)
   if (!settings.hooks) {
     settings.hooks = {};
   }
@@ -113,23 +113,23 @@ function updateSettings() {
   if (!settings.hooks.SessionEnd) {
     settings.hooks.SessionEnd = [newHook];
   } else {
-    // 既にSessionEndがある場合、同じコマンドが無ければ追加
+    // If SessionEnd already exists, add only if the same command is not present
     const exists = settings.hooks.SessionEnd.some(entry =>
       entry.hooks?.some(h => h.command === hookCommand)
     );
     if (!exists) {
       settings.hooks.SessionEnd.push(newHook);
     } else {
-      log('ℹ️', 'SessionEnd hookは既に設定済みです');
+      log('ℹ️', 'SessionEnd hook is already configured');
     }
   }
 
   writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n', 'utf-8');
-  log('⚙️', 'settings.jsonにhookを追加しました');
+  log('⚙️', 'Added hook to settings.json');
 }
 
 function resolveNodeModules() {
-  // better-sqlite3 がグローバルにあるか確認し、なければ ~/.claude/scripts 用にインストール
+  // Install better-sqlite3 into ~/.claude/scripts if not available globally
   const nodeModulesDest = join(DIRS.scripts, 'node_modules');
   const pkgDest = join(DIRS.scripts, 'package.json');
 
@@ -142,9 +142,9 @@ function resolveNodeModules() {
 
   writeFileSync(pkgDest, JSON.stringify(pkg, null, 2) + '\n', 'utf-8');
 
-  log('📦', 'better-sqlite3 をインストール中...');
+  log('📦', 'Installing better-sqlite3...');
   execSync('npm install --production', { cwd: DIRS.scripts, stdio: 'inherit' });
-  log('✅', '依存パッケージをインストールしました');
+  log('✅', 'Installed dependencies');
 }
 
 // --- Main ---
@@ -162,14 +162,14 @@ resolveNodeModules();
 
 console.log('');
 console.log('=======================================');
-log('🎉', 'セットアップ完了！');
+log('🎉', 'Setup complete!');
 console.log('');
-console.log('  使い方:');
-console.log('  1. Claude Codeを普通に使う（自動的にセッションが記録されます）');
-console.log('  2. 1日の終わりに Claude Code 内で /til を実行');
+console.log('  Usage:');
+console.log('  1. Use Claude Code as usual (sessions are recorded automatically)');
+console.log('  2. Run /til inside Claude Code at the end of the day');
 console.log('');
-console.log('  Obsidian連携:');
+console.log('  Obsidian integration:');
 console.log('  export OBSIDIAN_VAULT_PATH="$HOME/path/to/vault"');
 console.log('');
-console.log('  ⚠️  hookの反映にはClaude Codeの再起動が必要です');
+console.log('  ⚠️  Restart Claude Code for hook changes to take effect');
 console.log('');

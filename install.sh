@@ -9,33 +9,33 @@ echo "🚀 Claude Code TIL - Installer"
 echo "======================================="
 echo ""
 
-# Node.js チェック
+# Check for Node.js
 if ! command -v node &> /dev/null; then
-  echo "❌ Node.js が見つかりません。先にインストールしてください。"
+  echo "❌ Node.js not found. Please install it first."
   exit 1
 fi
 
-# 既存のインストールを削除
+# Remove existing installation
 if [ -d "$INSTALL_DIR" ]; then
-  echo "📦 既存のインストールを更新します..."
+  echo "📦 Updating existing installation..."
   rm -rf "$INSTALL_DIR"
 fi
 
-# ダウンロード & 展開
-echo "📥 ダウンロード中..."
+# Download & extract
+echo "📥 Downloading..."
 mkdir -p "$INSTALL_DIR"
 curl -fsSL "$REPO_URL" | tar xz -C "$INSTALL_DIR" --strip-components=1
 
-# 依存パッケージのインストール
-echo "📦 依存パッケージをインストール中..."
+# Install dependencies
+echo "📦 Installing dependencies..."
 cd "$INSTALL_DIR"
 npm install --production
 
-# セットアップ実行
+# Run setup
 echo ""
 node setup.mjs
 
 echo ""
-echo "💡 アンインストールするには:"
+echo "💡 To uninstall:"
 echo "   curl -fsSL https://raw.githubusercontent.com/Yuya-Furusawa/claude-code-til/main/uninstall.sh | bash"
 echo ""

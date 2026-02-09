@@ -1,8 +1,8 @@
-今日の学びをまとめます。以下のスクリプトを実行してください:
+Summarize today's learnings. Please run the following script:
 
 ```bash
 bash ~/.claude/scripts/daily-learnings.sh
 ```
 
-完了したら、生成されたMarkdownファイルの内容を読んで表示してください。
-ファイルパスは実行結果の最後に表示されます。
+Once complete, read and display the contents of the generated Markdown file.
+The file path is shown at the end of the script output.

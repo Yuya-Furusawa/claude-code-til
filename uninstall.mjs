@@ -35,13 +35,13 @@ async function main() {
   console.log('');
 
   const skipConfirm = process.argv.includes('--yes') || process.argv.includes('-y');
-  const ok = skipConfirm || await confirm('アンインストールしますか？（SQLiteデータは保持されます）');
+  const ok = skipConfirm || await confirm('Uninstall? (SQLite data will be preserved)');
   if (!ok) {
-    log('👋', 'キャンセルしました');
+    log('👋', 'Cancelled');
     process.exit(0);
   }
 
-  // 1. settings.jsonからhookを削除
+  // 1. Remove hook from settings.json
   const settingsPath = join(CLAUDE_DIR, 'settings.json');
   if (existsSync(settingsPath)) {
     try {
@@ -57,14 +57,14 @@ async function main() {
           delete settings.hooks;
         }
         writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n', 'utf-8');
-        log('⚙️', 'settings.jsonからhookを削除しました');
+        log('⚙️', 'Removed hook from settings.json');
       }
     } catch (e) {
-      log('⚠️', `settings.jsonの更新に失敗: ${e.message}`);
+      log('⚠️', `Failed to update settings.json: ${e.message}`);
     }
   }
 
-  // 2. スクリプトを削除
+  // 2. Remove scripts
   const scripts = [
     'scripts/record-session.mjs',
     'scripts/extract-today.mjs',
@@ -78,29 +78,29 @@ async function main() {
     if (existsSync(path)) unlinkSync(path);
   }
 
-  // node_modules を削除
+  // Remove node_modules
   const nodeModulesPath = join(CLAUDE_DIR, 'scripts', 'node_modules');
   if (existsSync(nodeModulesPath)) {
     rmSync(nodeModulesPath, { recursive: true, force: true });
   }
 
-  log('📄', 'スクリプトを削除しました');
+  log('📄', 'Removed scripts');
 
-  // 3. カスタムコマンドを削除
+  // 3. Remove custom commands
   const commandPath = join(CLAUDE_DIR, 'commands', 'til.md');
   if (existsSync(commandPath)) {
     unlinkSync(commandPath);
-    log('⚡', 'カスタムコマンドを削除しました');
+    log('⚡', 'Removed custom commands');
   }
 
   console.log('');
-  log('✅', 'アンインストール完了');
+  log('✅', 'Uninstall complete');
   console.log('');
-  console.log('  以下のデータは保持されています:');
+  console.log('  The following data has been preserved:');
   console.log(`  - SQLite: ~/.claude/learnings/sessions.db`);
-  console.log(`  - サマリー: ~/.claude/learnings/*.md`);
+  console.log(`  - Summaries: ~/.claude/learnings/*.md`);
   console.log('');
-  console.log('  完全に削除するには:');
+  console.log('  To remove everything:');
   console.log('  rm -rf ~/.claude/learnings');
   console.log('');
 }

@@ -4,23 +4,23 @@ set -euo pipefail
 #
 # daily-learnings.sh
 #
-# 今日のClaude Codeセッションから「学んだこと」のサマリーを生成する。
-# claude -p を使用するため、APIコストは発生しない（Claude Codeサブスク内）。
+# Generates a "what I learned today" summary from today's Claude Code sessions.
+# Uses claude -p, so no API cost is incurred (runs within Claude Code subscription).
 #
 # Usage:
-#   bash daily-learnings.sh              # 今日の未サマリー分
-#   bash daily-learnings.sh --date 2025-02-08  # 特定日
-#   bash daily-learnings.sh --all        # 今日の全セッション
+#   bash daily-learnings.sh              # Today's unsummarized sessions
+#   bash daily-learnings.sh --date 2025-02-08  # Specific date
+#   bash daily-learnings.sh --all        # All of today's sessions
 #
 
 SCRIPTS_DIR="$(cd "$(dirname "$0")" && pwd)"
 LEARNINGS_DIR="$HOME/.claude/learnings"
 PROMPT_FILE="$SCRIPTS_DIR/prompt.txt"
 
-# 引数をextract-today.mjsにそのまま渡す
+# Pass arguments through to extract-today.mjs
 EXTRACT_ARGS=("$@")
 
-# 日付の決定
+# Determine the target date
 TODAY=$(date +%Y-%m-%d)
 if [ ${#EXTRACT_ARGS[@]} -gt 0 ]; then
   if [ "${EXTRACT_ARGS[$i]}" = "--date" ] && [ $((i + 1)) -lt ${#EXTRACT_ARGS[@]} ]; then
@@ -33,33 +33,33 @@ OUTPUT="$LEARNINGS_DIR/$TODAY.md"
 
 mkdir -p "$LEARNINGS_DIR"
 
-echo "📖 セッションを抽出中..."
+echo "📖 Extracting sessions..."
 EXTRACTED=$(node "$SCRIPTS_DIR/extract-today.mjs" ${EXTRACT_ARGS[@]+"${EXTRACT_ARGS[@]}"} 2>/dev/null || true)
 
-if [ -z "$EXTRACTED" ] || echo "$EXTRACTED" | grep -q "セッションはありません" || echo "$EXTRACTED" | grep -q "データベースが見つかりません"; then
-  echo "❌ 対象のセッションがありません。"
+if [ -z "$EXTRACTED" ] || echo "$EXTRACTED" | grep -q "No matching sessions" || echo "$EXTRACTED" | grep -q "Database not found"; then
+  echo "❌ No matching sessions found."
   exit 0
 fi
 
-# プロンプトの準備
+# Prepare the prompt
 if [ -f "$PROMPT_FILE" ]; then
   PROMPT=$(sed "s/{{DATE}}/$TODAY/g" "$PROMPT_FILE")
 else
-  PROMPT="以下のClaude Codeセッション記録から、今日新しく学んだことをMarkdown形式でまとめてください。日付: $TODAY"
+  PROMPT="From the following Claude Code session transcripts, summarize what was newly learned today in Markdown format. Date: $TODAY"
 fi
 
-echo "🤖 サマリーを生成中..."
+echo "🤖 Generating summary..."
 echo "$EXTRACTED" | claude -p "$PROMPT" --model claude-haiku-4-5-20251001 --output-format text > "$OUTPUT"
 
-echo "✅ サマリーを保存しました: $OUTPUT"
+echo "✅ Summary saved: $OUTPUT"
 
-# Obsidianに出力（環境変数が設定されている場合）
+# Export to Obsidian (if environment variable is set)
 if [ -n "${OBSIDIAN_VAULT_PATH:-}" ]; then
-  echo "📝 Obsidianに出力中..."
+  echo "📝 Exporting to Obsidian..."
   node "$SCRIPTS_DIR/export-obsidian.mjs" "$TODAY"
 fi
 
-# summarizedフラグを更新
+# Update summarized flag
 node -e "
 import { homedir } from 'os';
 import { join } from 'path';
@@ -73,9 +73,9 @@ db.prepare(
   \"UPDATE sessions SET summarized = 1 WHERE date(created_at) = date(?) AND summarized = 0\"
 ).run('$TODAY');
 const changes = db.prepare('SELECT changes() as count').get();
-console.log('📊 ' + changes.count + ' セッションを処理済みに更新しました');
+console.log('📊 Marked ' + changes.count + ' session(s) as summarized');
 db.close();
 "
 
 echo ""
-echo "📝 完了！ サマリー: $OUTPUT"
+echo "📝 Done! Summary: $OUTPUT"
