@@ -30,8 +30,16 @@ Claude Codeでの日々のやり取りを自動記録し、1日の終わりに�
 
 ## Installation
 
+### ワンライナーインストール（推奨）
+
 ```bash
-git clone https://github.com/YOUR_USERNAME/claude-code-til.git
+curl -fsSL https://raw.githubusercontent.com/Yuya-Furusawa/claude-code-til/main/install.sh | bash
+```
+
+### 手動インストール（開発者向け）
+
+```bash
+git clone https://github.com/Yuya-Furusawa/claude-code-til.git
 cd claude-code-til
 npm install
 node setup.mjs
@@ -146,6 +154,14 @@ crontab -e
 ```
 
 ## Uninstall
+
+### ワンライナーインストールの場合
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Yuya-Furusawa/claude-code-til/main/uninstall.sh | bash
+```
+
+### 手動インストールの場合
 
 ```bash
 cd claude-code-til
