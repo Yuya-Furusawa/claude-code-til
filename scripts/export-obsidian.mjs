@@ -17,11 +17,28 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { homedir } from 'os';
 import { join } from 'path';
 
-const VAULT_PATH = process.env.OBSIDIAN_VAULT_PATH;
+function getVaultPath() {
+  // 1. Environment variable (backwards compatible)
+  if (process.env.OBSIDIAN_VAULT_PATH) {
+    return process.env.OBSIDIAN_VAULT_PATH;
+  }
+  // 2. Config file
+  const configPath = join(homedir(), '.claude', 'scripts', 'config.json');
+  if (existsSync(configPath)) {
+    try {
+      const config = JSON.parse(readFileSync(configPath, 'utf-8'));
+      if (config.obsidianVaultPath) return config.obsidianVaultPath;
+    } catch {}
+  }
+  return null;
+}
+
+const VAULT_PATH = getVaultPath();
 
 if (!VAULT_PATH) {
-  console.error('❌ OBSIDIAN_VAULT_PATH environment variable is not set.');
-  console.error('   export OBSIDIAN_VAULT_PATH="$HOME/path/to/vault"');
+  console.error('❌ Obsidian Vault path is not configured.');
+  console.error('   Set it in ~/.claude/scripts/config.json:');
+  console.error('   { "obsidianVaultPath": "/path/to/vault" }');
   process.exit(1);
 }
 

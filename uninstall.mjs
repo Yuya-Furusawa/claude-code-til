@@ -70,6 +70,7 @@ async function main() {
     'scripts/extract-today.mjs',
     'scripts/daily-learnings.sh',
     'scripts/export-obsidian.mjs',
+    'scripts/config.json',
     'scripts/prompt.txt',
     'scripts/package.json',
   ];

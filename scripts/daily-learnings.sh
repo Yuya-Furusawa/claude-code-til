@@ -53,8 +53,18 @@ echo "$EXTRACTED" | claude -p "$PROMPT" --model claude-haiku-4-5-20251001 --outp
 
 echo "✅ Summary saved: $OUTPUT"
 
-# Export to Obsidian (if environment variable is set)
+# Export to Obsidian (if configured via config.json or environment variable)
+OBSIDIAN_CONFIGURED=false
 if [ -n "${OBSIDIAN_VAULT_PATH:-}" ]; then
+  OBSIDIAN_CONFIGURED=true
+elif [ -f "$SCRIPTS_DIR/config.json" ]; then
+  OBSIDIAN_PATH=$(node -e "try{const c=JSON.parse(require('fs').readFileSync('$SCRIPTS_DIR/config.json','utf-8'));if(c.obsidianVaultPath)console.log(c.obsidianVaultPath)}catch{}" 2>/dev/null)
+  if [ -n "$OBSIDIAN_PATH" ]; then
+    OBSIDIAN_CONFIGURED=true
+  fi
+fi
+
+if [ "$OBSIDIAN_CONFIGURED" = true ]; then
   echo "📝 Exporting to Obsidian..."
   node "$SCRIPTS_DIR/export-obsidian.mjs" "$TODAY"
 fi

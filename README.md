@@ -49,16 +49,18 @@ node setup.mjs
 
 1. Copies scripts to `~/.claude/scripts/`
 2. Places custom commands in `~/.claude/commands/`
-3. Adds a SessionEnd hook to `~/.claude/settings.json`
-4. Creates the SQLite directory
+3. Auto-detects your Obsidian Vault and writes `~/.claude/scripts/config.json`
+4. Adds a SessionEnd hook to `~/.claude/settings.json`
+5. Creates the SQLite directory
 
-### Obsidian integration setup (optional)
+### Obsidian integration
 
-Set the `OBSIDIAN_VAULT_PATH` environment variable to your Vault path.
+Vault path is auto-detected from Obsidian's registry during setup. To change it, edit `~/.claude/scripts/config.json`:
 
-```bash
-# ~/.bashrc or ~/.zshrc
-export OBSIDIAN_VAULT_PATH="$HOME/Documents/Obsidian/MyVault"
+```json
+{
+  "obsidianVaultPath": "/path/to/your/Obsidian Vault"
+}
 ```
 
 ## Update

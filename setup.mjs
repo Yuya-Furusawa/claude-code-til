@@ -80,6 +80,49 @@ function copyCommands() {
   log('⚡', 'Placed custom commands');
 }
 
+function detectObsidianVault() {
+  const configPath = join(DIRS.scripts, 'config.json');
+
+  // Don't overwrite existing config
+  if (existsSync(configPath)) {
+    log('ℹ️', 'Keeping existing config.json');
+    return;
+  }
+
+  const obsidianJsonPath = join(
+    homedir(),
+    'Library',
+    'Application Support',
+    'obsidian',
+    'obsidian.json',
+  );
+
+  if (!existsSync(obsidianJsonPath)) {
+    log('ℹ️', 'Obsidian not found — skipping config.json');
+    return;
+  }
+
+  try {
+    const data = JSON.parse(readFileSync(obsidianJsonPath, 'utf-8'));
+    const vaults = Object.values(data.vaults || {});
+    if (vaults.length === 0) {
+      log('ℹ️', 'No Obsidian vaults found — skipping config.json');
+      return;
+    }
+
+    const vaultPath = vaults[0].path;
+    if (vaults.length > 1) {
+      log('ℹ️', `Multiple vaults found. Using: ${vaultPath}`);
+    }
+
+    const config = { obsidianVaultPath: vaultPath };
+    writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf-8');
+    log('🔗', `Obsidian vault detected: ${vaultPath}`);
+  } catch (e) {
+    log('⚠️', `Failed to read obsidian.json: ${e.message}`);
+  }
+}
+
 function updateSettings() {
   const settingsPath = join(CLAUDE_DIR, 'settings.json');
   let settings = {};
@@ -157,6 +200,7 @@ console.log('');
 ensureDirs();
 copyScripts();
 copyCommands();
+detectObsidianVault();
 updateSettings();
 resolveNodeModules();
 
@@ -169,7 +213,7 @@ console.log('  1. Use Claude Code as usual (sessions are recorded automatically)
 console.log('  2. Run /til inside Claude Code at the end of the day');
 console.log('');
 console.log('  Obsidian integration:');
-console.log('  export OBSIDIAN_VAULT_PATH="$HOME/path/to/vault"');
+console.log('  Vault path is auto-detected. Edit ~/.claude/scripts/config.json to change.');
 console.log('');
 console.log('  ⚠️  Restart Claude Code for hook changes to take effect');
 console.log('');
